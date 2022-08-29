@@ -1,5 +1,6 @@
-﻿using System.Text.RegularExpressions;
-using System.Xml;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Xml2Ass
 {
@@ -40,53 +41,12 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         }
         public static string ConvertToAss(this string danmakusXml, int videoWidth, int videoHeight, string fontName = "Microsoft YaHei", int fontSize = 64, int lineCount = 14, int bottomMargin = 180, float shift = 0.0f)
         {
-            List<Danmaku> danmakus = new List<Danmaku>();
-            if (!string.IsNullOrEmpty(danmakusXml))
-            {
-                XmlDocument xdoc = new XmlDocument();
-                danmakusXml = Regex.Replace(danmakusXml, @"[\x00-\x08]|[\x0B-\x0C]|[\x0E-\x1F]", string.Empty);
-                xdoc.LoadXml(danmakusXml);
-                foreach (XmlNode item in xdoc.DocumentElement.ChildNodes)
-                {
-                    if (item.Attributes["p"] != null)
-                    {
-                        string node = item.Attributes["p"].Value;
-                        string[] danmaku = node.Split(',');
-                        var fSize = double.Parse(danmaku[2]);
-                        var type = danmaku[1] switch
-                        {
-                            "7" => DanmakuType.Advenced,
-                            "4" => DanmakuType.Bottom,
-                            "5" => DanmakuType.Top,
-                            _ => DanmakuType.Normal,
-                        };
-                        var poolType = danmaku[5] switch
-                        {
-                            "0" => DanmakuPoolType.Normal,
-                            "1" => DanmakuPoolType.SubTitle,
-                            _ => DanmakuPoolType.Special
-                        };
-                        var size = DanmakuSize.Normal;
-                        if (fSize < 25)
-                            size = DanmakuSize.Small;
-                        else if (fSize >= 36)
-                            size = DanmakuSize.Large;
-                        var colour = Convert.ToInt32(Convert.ToInt32(danmaku[3]).ToString("D8"), 16);
-                        danmakus.Add(new Danmaku
-                        {
-                            Type = type,
-                            Size = size,
-                            ShowTime = float.Parse(danmaku[0]),
-                            Colour = colour,
-                            SendTime = Convert.ToInt32(danmaku[4]),
-                            PoolType = poolType,
-                            SenderUIDHash = danmaku[6],
-                            Id = Convert.ToInt64(danmaku[7]),
-                            Content = item.InnerText
-                        });
-                    }
-                }
-            }
+            var danmakus = DanmakuParser.LoadXmlFromString(danmakusXml);
+            return ConvertToAss(danmakus, videoWidth, videoHeight, fontName, fontSize, lineCount, bottomMargin, shift);
+        }
+        public static string ConvertToAss(this FileInfo danmakusFile, int videoWidth, int videoHeight, string fontName = "Microsoft YaHei", int fontSize = 64, int lineCount = 14, int bottomMargin = 180, float shift = 0.0f)
+        {
+            var danmakus = DanmakuParser.LoadXmlFromFile(danmakusFile.FullName);
             return ConvertToAss(danmakus, videoWidth, videoHeight, fontName, fontSize, lineCount, bottomMargin, shift);
         }
     }

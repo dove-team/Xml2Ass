@@ -1,4 +1,6 @@
-﻿namespace Xml2Ass
+﻿using System.Linq;
+
+namespace Xml2Ass
 {
     internal static class Utils
     {

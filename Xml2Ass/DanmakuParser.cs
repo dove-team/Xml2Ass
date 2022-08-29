@@ -1,8 +1,11 @@
-﻿using System.Xml.Linq;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace Xml2Ass
 {
-    public class DanmakuParser
+    public sealed class DanmakuParser
     {
         /// <summary>
         /// 加载xml文件

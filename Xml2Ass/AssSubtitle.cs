@@ -1,4 +1,8 @@
-﻿namespace Xml2Ass
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Xml2Ass
 {
     internal class AssSubtitle
     {
@@ -37,11 +41,11 @@
         }
         public override string ToString()
         {
-            static string format(string s)
+            string format(string s)
             {
                 if (!s.Contains('.')) return s.Insert(s.Length, ".00");
-                if (s[s.LastIndexOf('.')..].Length == 2) return s + "0";
-                if (s[s.LastIndexOf('.')..].Length > 3)
+                if (s.Substring(s.LastIndexOf('.')).Length == 2) return s + "0";
+                if (s.Substring(s.LastIndexOf('.')).Length > 3)
                 {
                     var index = s.LastIndexOf('.');
                     return s.Remove(index + 3, s.Length - index - 3);
